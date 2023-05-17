@@ -1,0 +1,18 @@
+dir structure
+
+MyProject/
+├─ src/
+│  ├─ com/
+│  │  ├─ myproject/
+│  │  │  ├─ Main.java
+│  │  │  ├─ util/
+│  │  │  │  ├─ Helper.java
+├─ lib/
+│  ├─ mylibrary.jar
+
+
+All imports are absolute
+while creating jar path upto src is neglected. The import statements start from com.project
+
+Runnning a jar file
+/usr/bin/java -jar /path/to/yourJarFile.jar
