@@ -62,3 +62,8 @@ make sure name in this file in equal to name of package inside src
 
 
 
+python imports
+https://stackoverflow.com/questions/14132789/relative-imports-for-the-billionth-time#:~:text=import%20to%20work%2C%20the%20module's,are%20in%20the%20import%20statement.&text=However%2C%20if%20your%20module's%20name,import%20statements%20inside%20it.
+
+
+
