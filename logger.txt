@@ -1,0 +1,84 @@
+So if you have a child logger and a parent logger, and both have handlers attached to them, a log event sent to the child logger could be handled by both the child's and parent's handlers, depending on their respective levels and the child's propagation setting. 
+
+The level set for a logger determines which severity of messages it will pass to its handlers. If the severity of the message is lower than the level set for the logger, the logger ignores the message.
+
+The level set for a handler determines which messages it will pass to its formatter to be output (e.g., printed to console, written to a file, etc.). If the severity of a message is lower than the level set for the handler, the handler ignores the message.
+
+Here's a simplified overview of the process when a message is logged:
+
+The message arrives at the logger.
+If the message's severity is lower than the logger's level, the logger ignores the message. Otherwise, it passes the message to all of its handlers.
+Each handler checks if the message's severity is lower than its own level. If it is, the handler ignores the message. Otherwise, it passes the message to its formatter.
+The formatter formats the message and the handler outputs it.
+This dual-level system allows for greater flexibility in controlling which messages are logged and where they are output. For example, you could have a logger with level DEBUG, and two handlers: one with level DEBUG that writes all messages to a debug log file, and one with level ERROR that sends error and critical messages to an error tracking service.
+
+Handlers in Python's logging module:
+
+Handlers are the components of the logging system that take care of outputting the log messages to their final destinations (like the console, a file, a network location, etc.). Handlers are attached to loggers, and each logger can have multiple handlers attached to it. A logger passes a log event to all its handlers whenever it handles the event.
+
+Levels of handlers and loggers:
+
+Both handlers and loggers have their own levels, which determine the minimum severity of log events they will handle. By default, the level of a logger is NOTSET and the level of a handler is also NOTSET, which causes it to process all log events it receives.
+
+For a logger, a level of NOTSET means it will defer to the parent logger or root logger's level. So, if the level of the root logger is WARNING, then a logger with NOTSET will process WARNING, ERROR, and CRITICAL events, not DEBUG or INFO. If a logger is set to NOTSET and it's not the root logger, it doesn't "disable" all logging output. Instead, it will inherit the level of its parent.
+
+On the other hand, if the log level of a handler is set to 0, which is also NOTSET, it means the handler will process all log events it receives. The handler will not filter or ignore any log events based on their severity level.
+
+Handlers and loggers hierarchy:
+
+The loggers in Python's logging module form a hierarchy based on their names, with the root logger at the top. When a log event is handled by a logger, it's passed to all the handlers attached to that logger and, if propagation is enabled, also to the handlers of that logger's ancestors in the hierarchy.
+
+Propagation of log events:
+
+By default, log events are propagated up the hierarchy of loggers, from the logger that handles the event to all its ancestors. This is controlled by the propagate attribute of loggers, which is True by default. Propagation can be stopped by setting propagate to False.
+
+Root logger and "last resort" handler:
+
+The root logger is the top-level logger in the hierarchy. When a log event is propagated to the root logger, it's handled by the root logger's handlers. If the root logger doesn't have any handlers, it uses a "last resort" handler, which is a StreamHandler that writes to sys.stderr. This ensures that log events are not lost even if no handlers are configured.
+
+The "last resort" handler is a StreamHandler that writes to sys.stderr and has a level of WARNING. It is used when no configuration is provided and an error message needs to be logged somewhere, hence it only logs WARNING, ERROR, and CRITICAL messages.
+
+Child loggers and their handlers:
+
+A child logger is any logger that's not the root logger. A child logger can have its own handlers, which process log events handled by the child logger, and it inherits the handlers of its ancestors due to propagation. If a child logger doesn't have any handlers, and its propagate attribute is True, log events handled by the child logger are passed to its parent's handlers.
+
+To summarize, a log event can be processed by multiple handlers at different levels of the logger hierarchy. It's processed by the handlers of the logger that handles the event, and, if propagation is enabled, by the handlers of all the logger's ancestors. If the event reaches the root logger and it doesn't have any handlers, the event is processed by the "last resort" handler. The levels of the handlers and loggers determine whether they handle a log event.
+
+
+The "last resort" handler is used when:
+
+A log event reaches the root logger, and
+No handlers have been configured anywhere in the logging system.
+In this situation, instead of the log event being lost, it is handled by the "last resort" handler, which is a StreamHandler that writes to sys.stderr.
+
+
+example 1:-
+import logging
+
+# Create a child logger with a handler
+child = logging.getLogger('child')
+child_handler = logging.StreamHandler()
+child.addHandler(child_handler)
+
+# Create a root logger with a different handler
+root = logging.getLogger()
+root_handler = logging.FileHandler('logfile.log')
+root.addHandler(root_handler)
+
+# Log a message with the child logger
+child.warning("This is a warning message")
+
+In this example, the child logger has a StreamHandler attached to it, while the root logger has a FileHandler attached. When the log event is propagated from the child logger to the root logger, both handlers will process the log event independently, resulting in duplicate logs—once in the console (handled by the child's StreamHandler) and once in the logfile.log file (handled by the root's FileHandler).
+
+Therefore, duplicate logs can occur as long as there are handlers at different levels in the logger hierarchy that process the log events. The handlers themselves do not need to be the same.
+
+
+
+
+
+
+
+
+
+
+
